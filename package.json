@@ -8,9 +8,14 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
+    "dev:fresh": "node scripts/kill-port.mjs && tsx watch src/index.ts",
+    "kill-port": "node scripts/kill-port.mjs",
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "ota:publish:dev": "bash scripts/publish-sample.sh development",
+    "ota:publish:staging": "bash scripts/publish-sample.sh staging",
+    "ota:publish:production": "bash scripts/publish-sample.sh production"
   },
   "engines": {
     "node": ">=20"

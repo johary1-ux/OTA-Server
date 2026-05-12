@@ -74,6 +74,18 @@ async function main(): Promise<void> {
     );
   });
 
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      logger.error(
+        { port: config.port },
+        `Port ${config.port} is already in use. Run "npm run kill-port" or change PORT in .env.`,
+      );
+      process.exit(1);
+    }
+    logger.error({ err }, 'Server error');
+    process.exit(1);
+  });
+
   const shutdown = (signal: string): void => {
     logger.info({ signal }, 'Shutting down');
     server.close(() => process.exit(0));
