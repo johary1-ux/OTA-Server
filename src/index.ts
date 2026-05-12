@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express, { type ErrorRequestHandler } from 'express';
 import helmet from 'helmet';
+import { MulterError } from 'multer';
 import { config } from './lib/config';
 import { logger } from './lib/logger';
 import { ensureDirs } from './lib/storage';
@@ -55,10 +56,47 @@ async function main(): Promise<void> {
     res.status(404).json({ error: 'Not Found' });
   });
 
-  const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
-    logger.error({ err }, 'Unhandled error');
-    if (res.headersSent) return;
-    res.status(500).json({ error: 'Internal Server Error' });
+  const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
+    const ctx = { method: req.method, url: req.url };
+
+    if (res.headersSent) {
+      logger.error({ err, ...ctx }, 'Error after headers were sent — destroying response');
+      res.destroy(err as Error);
+      return;
+    }
+
+    // Multer: client sent something we can't accept (oversize, too many files, etc.)
+    if (err instanceof MulterError) {
+      logger.warn({ ...ctx, code: err.code, field: err.field }, 'Multer error');
+      res.status(400).json({
+        error: 'Upload failed',
+        code: err.code,
+        field: err.field,
+        message: err.message,
+      });
+      return;
+    }
+
+    // express.json() / express.urlencoded() parse error
+    if ((err as { type?: string }).type === 'entity.parse.failed') {
+      logger.warn({ ...ctx, err }, 'Body parse failed');
+      res.status(400).json({ error: 'Malformed request body' });
+      return;
+    }
+
+    if ((err as { type?: string }).type === 'entity.too.large') {
+      logger.warn({ ...ctx }, 'Request body too large');
+      res.status(413).json({ error: 'Request body too large' });
+      return;
+    }
+
+    logger.error({ err, ...ctx }, 'Unhandled error');
+    res.status(500).json({
+      error: 'Internal Server Error',
+      ...(config.nodeEnv !== 'production' && err instanceof Error
+        ? { detail: err.message }
+        : {}),
+    });
   };
   app.use(errorHandler);
 
@@ -93,6 +131,15 @@ async function main(): Promise<void> {
   };
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
+
+  process.on('unhandledRejection', (reason) => {
+    logger.error({ reason }, 'Unhandled promise rejection');
+  });
+  process.on('uncaughtException', (err) => {
+    logger.fatal({ err }, 'Uncaught exception — shutting down');
+    server.close(() => process.exit(1));
+    setTimeout(() => process.exit(1), 5_000).unref();
+  });
 }
 
 main().catch((err) => {
