@@ -56,11 +56,12 @@ publishRouter.post(
   upload.fields([
     { name: 'bundle', maxCount: 1 },
     { name: 'assets', maxCount: 200 },
+    { name: 'assets[]', maxCount: 200 },
   ]),
   async (req, res) => {
     const files = req.files as Record<string, Express.Multer.File[]> | undefined;
     const bundleFile = files?.bundle?.[0];
-    const assetFiles = files?.assets ?? [];
+    const assetFiles = [...(files?.assets ?? []), ...(files?.['assets[]'] ?? [])];
 
     const channel = String(req.body.channel ?? '');
     const runtimeVersion = String(req.body.runtimeVersion ?? '');

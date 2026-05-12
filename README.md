@@ -56,7 +56,7 @@ Headers:
 | `commit`         | text            | no       | Git SHA                              |
 | `message`        | text            | no       | Free-form release note               |
 | `bundle`         | file            | yes      | The JS bundle (`main.jsbundle`)      |
-| `assets[]`       | files (repeats) | no       | Images, fonts, etc.                  |
+| `assets`         | files (repeats) | no       | Images, fonts, etc. (`assets[]` also accepted) |
 
 Response: `200 { id, url, hash }` where `hash` is the hex SHA-256 of the bundle.
 
@@ -125,8 +125,8 @@ curl -X POST "$OTA_BASE_URL/api/publish" \
   -F "commit=$(git rev-parse HEAD)" \
   -F "message=fix: clipping bug" \
   -F "bundle=@./dist/main.jsbundle;type=application/javascript" \
-  -F "assets[]=@./dist/assets/logo.png;type=image/png" \
-  -F "assets[]=@./dist/assets/Inter.ttf;type=font/ttf"
+  -F "assets=@./dist/assets/logo.png;type=image/png" \
+  -F "assets=@./dist/assets/Inter.ttf;type=font/ttf"
 ```
 
 Response:

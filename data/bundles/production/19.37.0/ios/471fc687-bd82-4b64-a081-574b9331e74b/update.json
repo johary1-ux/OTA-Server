@@ -1,0 +1,27 @@
+{
+  "id": "471fc687-bd82-4b64-a081-574b9331e74b",
+  "createdAt": "2026-05-12T09:11:04.076Z",
+  "channel": "production",
+  "platform": "ios",
+  "runtimeVersion": "19.37.0",
+  "commit": "test123",
+  "message": "smoke",
+  "launchAsset": {
+    "key": "bundle",
+    "hash": "1927f08fb5980adc17fcd841ea4487912485760ffa0525e6822bd242f7ec73b7",
+    "contentType": "application/javascript",
+    "fileExtension": "bundle",
+    "fileName": "main.jsbundle"
+  },
+  "assets": [
+    {
+      "key": "logo.png",
+      "hash": "f084b1351c41cf3c554d932a3a978992a39b902f289c6e213b6428c3b38541ed",
+      "contentType": "image/png",
+      "fileExtension": "png",
+      "fileName": "logo.png"
+    }
+  ],
+  "metadata": {},
+  "extra": {}
+}
