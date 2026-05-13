@@ -56,7 +56,7 @@ Headers:
 | `commit`         | text            | no       | Git SHA                              |
 | `message`        | text            | no       | Free-form release note               |
 | `bundle`         | file            | yes      | The JS bundle (`main.jsbundle`)      |
-| `assets`         | files (repeats) | no       | Images, fonts, etc. (`assets[]` also accepted) |
+| `assets`         | files (repeats) | no       | Images, fonts, etc. `assets[]` also accepted. |
 
 Response: `200 { id, url, hash }` where `hash` is the hex SHA-256 of the bundle.
 
